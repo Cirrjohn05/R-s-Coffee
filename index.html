@@ -9,7 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <!-- CSS for styling -->
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; }
     .container { max-width: 400px; margin: 50px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
@@ -26,8 +26,6 @@
     .low-stock { color: red; font-weight: bold; }
     #logoutBtn { margin-top: 20px; background-color: #dc3545; }
     #logoutBtn:hover { background-color: #c82333; }
-    .google-btn { background-color: #DB4437; }
-    .google-btn:hover { background-color: #c23321; }
   </style>
   <script>
     // Firebase configuration - replace these with your actual config values
@@ -65,9 +63,6 @@
     </form>
     
     <div class="toggle" id="toggleForm">Don't have an account? Create one</div>
-    
-    <!-- Google Login Button -->
-    <button id="googleLogin" class="google-btn">Login with Google</button>
   </div>
   
   <!-- Dashboard Section -->
@@ -152,20 +147,6 @@
       firebase.auth().sendPasswordResetEmail(email)
       .then(function() {
         alert("Password reset email sent!");
-      })
-      .catch(function(error) {
-        alert("Error: " + error.message);
-      });
-    });
-
-    // Google Login
-    document.getElementById('googleLogin').addEventListener('click', function() {
-      var provider = new firebase.auth.GoogleAuthProvider();
-      firebase.auth().signInWithPopup(provider)
-      .then(function(result) {
-        alert("Google login successful!");
-        document.getElementById("loginSection").style.display = "none";
-        document.getElementById("dashboardSection").style.display = "block";
       })
       .catch(function(error) {
         alert("Error: " + error.message);
