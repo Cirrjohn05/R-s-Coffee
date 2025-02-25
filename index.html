@@ -21,13 +21,13 @@
   <script>
     // Firebase configuration - replace these with your actual config values
     var firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID",
-      databaseURL: "YOUR_DATABASE_URL"
+      apiKey: "AIzaSyActYOn0E0NquJzJE0u8XU4czOFq3k6bBY",
+      authDomain: "r-s-coffee-8f31a.firebaseapp.com",
+      projectId: "r-s-coffee-8f31a",
+      storageBucket: "r-s-coffee-8f31a.firebasestorage.app",
+      messagingSenderId: "1013399945180",
+      appId: "1:1013399945180:web:7fe2a6549b76d1dce3d919",
+      databaseURL: "https://r-s-coffee-8f31a-default-rtdb.asia-southeast1.firebasedatabase.app"
     };
     firebase.initializeApp(firebaseConfig);
   </script>
@@ -57,12 +57,12 @@
     <div class="toggle" id="togglePhone">Or login with phone number</div>
     
     <!-- Phone Authentication Form -->
-    <form id="phoneForm" style="display:none;">
-      <input type="text" id="phoneNumber" placeholder="Phone Number (e.g., +1234567890)" required>
-      <button type="button" id="sendCode">Send Verification Code</button>
-      <input type="text" id="verificationCode" placeholder="Enter Verification Code" style="display:none;">
-      <button type="button" id="verifyCode" style="display:none;">Verify Code</button>
-    </form>
+  <form id="phoneForm" style="display:none;">
+    <input type="text" id="phoneNumber" placeholder="Phone Number (e.g., +639171234567)" required>
+    <button type="button" id="sendCode">Send Verification Code</button>
+    <input type="text" id="verificationCode" placeholder="Enter Verification Code" style="display:none;">
+    <button type="button" id="verifyCode" style="display:none;">Verify Code</button>
+  </form>
   </div>
 
   <script>
