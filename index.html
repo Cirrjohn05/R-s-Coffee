@@ -3,75 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Coffee Shop Dashboard</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/raphael@2.3.0/raphael.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/justgage@1.2.2/justgage.min.js"></script>
+    <title>Smart Coffee Shop - Weight Monitor</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { font-family: 'Arial', sans-serif; background: #f7f7f7; text-align: center; padding: 20px; }
+        .dashboard-container { max-width: 500px; margin: auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .weight-display { font-size: 3em; font-weight: bold; color: #007bff; margin: 20px 0; }
+        .alert { display: none; padding: 10px; background: red; color: white; font-weight: bold; border-radius: 5px; }
+        .meter-container { width: 100%; height: 30px; background: #e0e0e0; border-radius: 15px; position: relative; overflow: hidden; }
+        .meter-fill { height: 100%; width: 0%; background: #007bff; border-radius: 15px; transition: width 0.5s; }
+        @media (max-width: 600px) { .dashboard-container { width: 90%; } }
+    </style>
 </head>
-<body class="bg-gray-100 flex justify-center items-center h-screen">
-
-    <!-- Dashboard Section -->
-    <div id="dashboardSection" class="bg-white p-6 rounded-lg shadow-lg w-96 text-center">
-        <h2 class="text-xl font-bold mb-4">Dashboard</h2>
-        <p class="text-gray-600">Current Weight:</p>
-        <h1 id="weightText" class="text-2xl font-bold text-blue-500">Loading...</h1>
-        
-        <!-- Gauge Meter -->
-        <div id="gaugeContainer" class="mt-4">
-            <div id="gauge" style="width: 200px; height: 150px; margin: auto;"></div>
+<body>
+    <div class="dashboard-container">
+        <h2>Storage Bin Weight</h2>
+        <div class="alert" id="alert">⚠️ Overweight! Reduce Load!</div>
+        <div class="weight-display" id="weight">Loading...</div>
+        <div class="meter-container">
+            <div class="meter-fill" id="meter"></div>
         </div>
-
-        <button id="logoutBtn" class="mt-4 bg-red-500 text-white p-2 rounded hover:bg-red-600 w-full">Log Out</button>
     </div>
-
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyActYOn0E0NquJzJE0u8XU4czOFq3k6bBY",
+        var firebaseConfig = {
+            apiKey: "AIzaSyActYOn0...",
             authDomain: "r-s-coffee-8f31a.firebaseapp.com",
             databaseURL: "https://r-s-coffee-8f31a-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "r-s-coffee-8f31a",
-            storageBucket: "r-s-coffee-8f31a.appspot.com",
-            messagingSenderId: "1013399945180",
-            appId: "1:1013399945180:web:7fe2a6549b76d1dce3d919"
+            projectId: "r-s-coffee-8f31a"
         };
-
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-
-        // Initialize Gauge
-        var gauge = new JustGage({
-            id: "gauge",
-            value: 0,
-            min: 0,
-            max: 5,  // Adjust based on your weight range (e.g., 5kg max)
-            title: "Weight (KG)",
-            label: "kg",
-            gaugeWidthScale: 0.6,
-            levelColors: ["#00E676", "#FFEB3B", "#F44336"] // Green, Yellow, Red
-        });
-
-        // Function to Get Weight from Firebase
+        
         function getWeight() {
             firebase.database().ref("/sensor/weight").on("value", snapshot => {
                 let weight = snapshot.val();
-                document.getElementById("weightText").innerText = weight + " KG";
-                gauge.refresh(weight);  // Update gauge meter
+                document.getElementById("weight").innerText = weight + " g";
+                document.getElementById("meter").style.width = Math.min(weight / 5000 * 100, 100) + "%";
+                document.getElementById("alert").style.display = weight > 4000 ? "block" : "none";
             });
         }
-
-        getWeight(); // Start fetching weight data
-
-        // Logout Function
-        document.getElementById("logoutBtn").addEventListener("click", function () {
-            firebase.auth().signOut().then(() => {
-                window.location.reload();  // Reload to login page
-            });
-        });
+        getWeight();
     </script>
-
 </body>
 </html>
