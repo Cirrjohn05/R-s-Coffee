@@ -3,96 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weight Monitoring Dashboard</title>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gaugeJS/dist/gauge.min.js"></script>
+    <title>Load Cell Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        #dashboardSection { display: none; }
-        canvas { width: 300px; height: 150px; }
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        .weight { font-size: 40px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div id="loginSection">
-        <h2>Login</h2>
-        <input type="email" id="loginEmail" placeholder="Email">
-        <input type="password" id="loginPassword" placeholder="Password">
-        <button id="loginBtn">Login</button>
-    </div>
-
-    <div id="dashboardSection">
-        <h2>Weight Monitoring Dashboard</h2>
-        <canvas id="gaugeCanvas"></canvas>
-        <p>Current Weight: <span id="weight">0</span> KG</p>
-        <button id="logoutBtn">Logout</button>
-    </div>
+    <h2>Load Cell Weight Data</h2>
+    <p class="weight" id="weightValue">Loading...</p>
 
     <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "TDgc2WWPp9A0mYinbyTguDnOarY32HwBcdFpMf2O",
+        // 🔹 Firebase Configuration
+        var firebaseConfig = {
+            apiKey: "AIzaSyActYOn0E0NquJzJE0U8XU4czOFq3k6bBY",
             authDomain: "r-s-coffee-8f31a.firebaseapp.com",
             databaseURL: "https://r-s-coffee-8f31a-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "r-s-coffee-8f31a",
             storageBucket: "r-s-coffee-8f31a.appspot.com",
             messagingSenderId: "1013399945180",
-            appId: "1:1013399945180:web:7fe2a6549b76d1dce3d919"
+            appId: "1:1013399945180:web:7fe2a6549b76d1dce3d919" 
         };
-        
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        firebase.initializeApp(firebaseConfig);
 
-        const auth = firebase.auth();
-        const database = firebase.database();
+        // 🔹 Get data from Firebase
+        var database = firebase.database();
+        var weightRef = database.ref("/SmartBin/Weight");
 
-        // Login Function
-        document.getElementById("loginBtn").addEventListener("click", function() {
-            let email = document.getElementById("loginEmail").value;
-            let password = document.getElementById("loginPassword").value;
-            auth.signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    document.getElementById("loginSection").style.display = "none";
-                    document.getElementById("dashboardSection").style.display = "block";
-                    getWeight();
-                })
-                .catch(error => alert("Error: " + error.message));
+        weightRef.on("value", function(snapshot) {
+            document.getElementById("weightValue").innerText = snapshot.val() + " g";
         });
-
-        // Logout Function
-        document.getElementById("logoutBtn").addEventListener("click", function() {
-            auth.signOut().then(() => {
-                document.getElementById("dashboardSection").style.display = "none";
-                document.getElementById("loginSection").style.display = "block";
-            });
-        });
-
-        // Initialize Gauge
-        var opts = { angle: -0.2, lineWidth: 0.2, radiusScale: 1, minValue: 0, maxValue: 10, animationSpeed: 32 };
-        var gaugeCanvas = document.getElementById("gaugeCanvas");
-        var gauge;
-        
-        if (gaugeCanvas) {
-            gauge = new Gauge(gaugeCanvas).setOptions(opts);
-            gauge.maxValue = 10; // Max value (adjustable)
-            gauge.setMinValue(0); // Min value
-            gauge.animationSpeed = 32; // Speed of animation
-            gauge.set(0); // Default value
-        }
-
-        // Fetch Weight from Firebase
-        function getWeight() {
-            database.ref("/sensor/weight").on("value", snapshot => {
-                let weight = snapshot.val();
-                if (weight !== null) {
-                    document.getElementById("weight").innerText = weight.toFixed(2) + " KG";
-                    if (gauge) gauge.set(weight); // Update gauge
-                }
-            });
-        }
     </script>
 </body>
 </html>
+
