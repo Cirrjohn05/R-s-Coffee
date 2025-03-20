@@ -3,63 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Weight Dashboard</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 50px;
-        }
-        #dashboardSection {
-            display: none;
-        }
-        .container {
-            max-width: 400px;
-            margin: auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: 2px 2px 12px rgba(0,0,0,0.2);
-        }
-        input, button {
-            margin: 10px;
-            padding: 10px;
-            width: 100%;
-        }
-        #weight {
-            font-size: 24px;
-            font-weight: bold;
-            color: #007bff;
-        }
-    </style>
+    <title>Smart Coffee Shop Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h2>IoT Coffee Shop Weight Monitoring</h2>
-    
+<body class="bg-gray-100 flex justify-center items-center h-screen">
     <!-- Login Section -->
-    <div id="loginSection" class="container">
-        <h3>Login</h3>
+    <div id="loginSection" class="bg-white p-6 rounded-lg shadow-lg w-80">
+        <h2 class="text-xl font-bold text-center mb-4">Login</h2>
         <form id="loginForm">
-            <input type="email" id="loginEmail" placeholder="Email" required>
-            <input type="password" id="loginPassword" placeholder="Password" required>
-            <button type="submit">Login</button>
+            <input type="email" id="loginEmail" placeholder="Email" required class="w-full p-2 mb-2 border rounded">
+            <input type="password" id="loginPassword" placeholder="Password" required class="w-full p-2 mb-4 border rounded">
+            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Log In</button>
         </form>
     </div>
 
-    <!-- Dashboard Section -->
-    <div id="dashboardSection" class="container">
-        <h3>Dashboard</h3>
-        <p>Current Weight: <span id="weight">Loading...</span> kg</p>
-        <button id="logoutBtn">Logout</button>
+    <!-- Dashboard Section (Hidden Initially) -->
+    <div id="dashboardSection" class="hidden bg-white p-6 rounded-lg shadow-lg w-96 text-center">
+        <h2 class="text-xl font-bold mb-4">Dashboard</h2>
+        <p class="text-gray-600">Current Weight:</p>
+        <h1 id="weight" class="text-2xl font-bold text-blue-500">Loading...</h1>
+        <button id="logoutBtn" class="mt-4 bg-red-500 text-white p-2 rounded hover:bg-red-600 w-full">Log Out</button>
     </div>
 
     <script>
         // Firebase Configuration
-        var firebaseConfig = {
-            apiKey: "AIzaSyActYOn0E0NquJzJE0U8XU4czOFq3k6bBY",
+        const firebaseConfig = {
+            apiKey: "H66sCjWTIEXVfayuidz2pXAWpJUiFB9vrP5CsQZw",
             authDomain: "r-s-coffee-8f31a.firebaseapp.com",
             databaseURL: "https://r-s-coffee-8f31a-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "r-s-coffee-8f31a",
@@ -75,7 +47,7 @@
         function getWeight() {
             firebase.database().ref("/sensor/weight").on("value", snapshot => {
                 let weight = snapshot.val();
-                document.getElementById("weight").innerText = (weight / 1000).toFixed(3) + " kg"; // Convert g to kg
+                document.getElementById("weight").innerText = weight + " KG";
             });
         }
 
@@ -88,8 +60,8 @@
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then(() => {
                     document.getElementById("loginSection").style.display = "none";
-                    document.getElementById("dashboardSection").style.display = "block";
-                    getWeight();  // Start getting weight data
+                    document.getElementById("dashboardSection").classList.remove("hidden");
+                    getWeight();  // Fetch weight after login
                 })
                 .catch(error => alert("Error: " + error.message));
         });
@@ -97,7 +69,7 @@
         // Logout Function
         document.getElementById("logoutBtn").addEventListener("click", function () {
             firebase.auth().signOut().then(() => {
-                document.getElementById("dashboardSection").style.display = "none";
+                document.getElementById("dashboardSection").classList.add("hidden");
                 document.getElementById("loginSection").style.display = "block";
             });
         });
