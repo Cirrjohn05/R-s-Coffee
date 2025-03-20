@@ -1,44 +1,88 @@
-// Firebase Configuration
-var firebaseConfig = {
-    apiKey: "AIzaSyActYOn0E0NquJzJE0u8XU4czOFq3k6bBY",
-    authDomain: "r-s-coffee-8f31a.firebaseapp.com",
-    databaseURL: "https://r-s-coffee-8f31a-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "r-s-coffee-8f31a",
-    storageBucket: "r-s-coffee-8f31a.appspot.com",
-    messagingSenderId: "1013399945180",
-    appId: "1:1013399945180:web:7fe2a6549b76d1dce3d919"
-};
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>R's Coffee - Dashboard</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-analytics.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f2f2f2; text-align: center; }
+        .container { max-width: 400px; margin: 50px auto; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        input, button { width: 100%; padding: 10px; margin: 10px 0; }
+        button { background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .toggle { cursor: pointer; color: #007bff; text-decoration: underline; }
+        #dashboardSection { display: none; }
+        .dashboard-container { max-width: 800px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .weight-display { font-size: 2em; font-weight: bold; color: #007bff; }
+    </style>
+</head>
+<body>
+    <div class="container" id="loginSection">
+        <h2 id="form-title">Login</h2>
+        <form id="loginForm">
+            <input type="email" id="loginEmail" placeholder="Email" required>
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <div class="toggle" id="toggleForm">Don't have an account? Create one</div>
+    </div>
+    
+    <div id="dashboardSection" class="dashboard-container">
+        <h2>Smart Storage Bin Dashboard</h2>
+        <h3>Current Weight:</h3>
+        <div class="weight-display" id="weight">Loading...</div>
+        <button id="logoutBtn">Logout</button>
+    </div>
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+    <script>
+        // Firebase Configuration
+            var firebaseConfig = {
+                apiKey: "AIzaSyActYOn0E0NquJzJE0u8XU4czOFq3k6bBY",
+                authDomain: "r-s-coffee-8f31a.firebaseapp.com",
+                databaseURL: "https://r-s-coffee-8f31a-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "r-s-coffee-8f31a",
+                storageBucket: "r-s-coffee-8f31a.appspot.com",
+                messagingSenderId: "1013399945180",
+                appId: "1:1013399945180:web:7fe2a6549b76d1dce3d919"
+            };
 
-// Function to Get Weight from Firebase
-function getWeight() {
-    firebase.database().ref("/sensor/weight").on("value", snapshot => {
-        let weight = snapshot.val();
-        document.getElementById("weight").innerText = weight + " g";
-    });
-}
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
 
-// Call getWeight() once user logs in
-document.getElementById("loginForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-    let email = document.getElementById("loginEmail").value;
-    let password = document.getElementById("loginPassword").value;
+            // Function to Get Weight from Firebase
+            function getWeight() {
+                firebase.database().ref("/sensor/weight").on("value", snapshot => {
+                    let weight = snapshot.val();
+                    document.getElementById("weight").innerText = weight + " g";
+                });
+            }
 
-    firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(() => {
-            document.getElementById("loginSection").style.display = "none";
-            document.getElementById("dashboardSection").style.display = "block";
-            getWeight();  // Start getting weight data
-        })
-        .catch(error => alert("Error: " + error.message));
-});
+            // Call getWeight() once user logs in
+            document.getElementById("loginForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+                let email = document.getElementById("loginEmail").value;
+                let password = document.getElementById("loginPassword").value;
 
-// Logout Function
-document.getElementById("logoutBtn").addEventListener("click", function () {
-    firebase.auth().signOut().then(() => {
-        document.getElementById("dashboardSection").style.display = "none";
-        document.getElementById("loginSection").style.display = "block";
-    });
-});
+                firebase.auth().signInWithEmailAndPassword(email, password)
+                    .then(() => {
+                        document.getElementById("loginSection").style.display = "none";
+                        document.getElementById("dashboardSection").style.display = "block";
+                        getWeight();  // Start getting weight data
+                    })
+                    .catch(error => alert("Error: " + error.message));
+            });
+
+            // Logout Function
+            document.getElementById("logoutBtn").addEventListener("click", function () {
+                firebase.auth().signOut().then(() => {
+                    document.getElementById("dashboardSection").style.display = "none";
+                    document.getElementById("loginSection").style.display = "block";
+                });
+            });
+    </script>
+</body>
+</html>
