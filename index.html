@@ -34,14 +34,12 @@
         };
         firebase.initializeApp(firebaseConfig);
         
-      function getWeight() {
-        firebase.database().ref("/sensor/weight").on("value", snapshot => {
-            let weight = snapshot.val();
-            let weightKg = (weight / 1000).toFixed(1); // Convert to kg and keep 1 decimal place
-            
-            document.getElementById("weight").innerText = weightKg + " kg";
-            document.getElementById("meter").style.width = Math.min(weight / 5000 * 100, 100) + "%";
-            document.getElementById("alert").style.display = weight > 4000 ? "block" : "none";
+        function getWeight() {
+            firebase.database().ref("/sensor/weight").on("value", snapshot => {
+                let weight = snapshot.val();
+                document.getElementById("weight").innerText = weight + " g";
+                document.getElementById("meter").style.width = Math.min(weight / 5000 * 100, 100) + "%";
+                document.getElementById("alert").style.display = weight > 4000 ? "block" : "none";
             });
         }
         getWeight();
