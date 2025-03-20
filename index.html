@@ -8,47 +8,29 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/raphael@2.3.0/raphael.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/justgage@1.2.2/justgage.min.js"></script>
 </head>
 <body class="bg-gray-100 flex justify-center items-center h-screen">
 
-    <!-- Login Section -->
-    <div id="loginSection" class="bg-white p-6 rounded-lg shadow-lg w-80">
-        <h2 class="text-xl font-bold text-center mb-4">Login</h2>
-        <form id="loginForm">
-            <input type="email" id="loginEmail" placeholder="Email" required class="w-full p-2 mb-2 border rounded">
-            <input type="password" id="loginPassword" placeholder="Password" required class="w-full p-2 mb-4 border rounded">
-            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Log In</button>
-        </form>
-        <p class="text-center text-gray-600 mt-4">Don't have an account? 
-            <a href="#" id="showSignup" class="text-blue-500">Sign Up</a>
-        </p>
-    </div>
-
-    <!-- Signup Section (Initially Hidden) -->
-    <div id="signupSection" class="hidden bg-white p-6 rounded-lg shadow-lg w-80">
-        <h2 class="text-xl font-bold text-center mb-4">Create Account</h2>
-        <form id="signupForm">
-            <input type="email" id="signupEmail" placeholder="Email" required class="w-full p-2 mb-2 border rounded">
-            <input type="password" id="signupPassword" placeholder="Password" required class="w-full p-2 mb-4 border rounded">
-            <button type="submit" class="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600">Sign Up</button>
-        </form>
-        <p class="text-center text-gray-600 mt-4">Already have an account? 
-            <a href="#" id="showLogin" class="text-blue-500">Log In</a>
-        </p>
-    </div>
-
-    <!-- Dashboard Section (Hidden Initially) -->
-    <div id="dashboardSection" class="hidden bg-white p-6 rounded-lg shadow-lg w-96 text-center">
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="bg-white p-6 rounded-lg shadow-lg w-96 text-center">
         <h2 class="text-xl font-bold mb-4">Dashboard</h2>
         <p class="text-gray-600">Current Weight:</p>
-        <h1 id="weight" class="text-2xl font-bold text-blue-500">Loading...</h1>
+        <h1 id="weightText" class="text-2xl font-bold text-blue-500">Loading...</h1>
+        
+        <!-- Gauge Meter -->
+        <div id="gaugeContainer" class="mt-4">
+            <div id="gauge" style="width: 200px; height: 150px; margin: auto;"></div>
+        </div>
+
         <button id="logoutBtn" class="mt-4 bg-red-500 text-white p-2 rounded hover:bg-red-600 w-full">Log Out</button>
     </div>
 
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "H66sCjWTIEXVfayuidz2pXAWpJUiFB9vrP5CsQZw",
+            apiKey: "AIzaSyActYOn0E0NquJzJE0u8XU4czOFq3k6bBY",
             authDomain: "r-s-coffee-8f31a.firebaseapp.com",
             databaseURL: "https://r-s-coffee-8f31a-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "r-s-coffee-8f31a",
@@ -60,62 +42,34 @@
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
 
+        // Initialize Gauge
+        var gauge = new JustGage({
+            id: "gauge",
+            value: 0,
+            min: 0,
+            max: 5,  // Adjust based on your weight range (e.g., 5kg max)
+            title: "Weight (KG)",
+            label: "kg",
+            gaugeWidthScale: 0.6,
+            levelColors: ["#00E676", "#FFEB3B", "#F44336"] // Green, Yellow, Red
+        });
+
         // Function to Get Weight from Firebase
         function getWeight() {
             firebase.database().ref("/sensor/weight").on("value", snapshot => {
                 let weight = snapshot.val();
-                document.getElementById("weight").innerText = weight + " KG";
+                document.getElementById("weightText").innerText = weight + " KG";
+                gauge.refresh(weight);  // Update gauge meter
             });
         }
 
-        // Login Function
-        document.getElementById("loginForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-            let email = document.getElementById("loginEmail").value;
-            let password = document.getElementById("loginPassword").value;
-
-            firebase.auth().signInWithEmailAndPassword(email, password)
-                .then(() => {
-                    document.getElementById("loginSection").style.display = "none";
-                    document.getElementById("dashboardSection").classList.remove("hidden");
-                    getWeight();  // Fetch weight after login
-                })
-                .catch(error => alert("Error: " + error.message));
-        });
-
-        // Signup Function
-        document.getElementById("signupForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-            let email = document.getElementById("signupEmail").value;
-            let password = document.getElementById("signupPassword").value;
-
-            firebase.auth().createUserWithEmailAndPassword(email, password)
-                .then(() => {
-                    alert("Account created successfully! Logging in...");
-                    document.getElementById("signupSection").classList.add("hidden");
-                    document.getElementById("dashboardSection").classList.remove("hidden");
-                    getWeight();
-                })
-                .catch(error => alert("Error: " + error.message));
-        });
+        getWeight(); // Start fetching weight data
 
         // Logout Function
         document.getElementById("logoutBtn").addEventListener("click", function () {
             firebase.auth().signOut().then(() => {
-                document.getElementById("dashboardSection").classList.add("hidden");
-                document.getElementById("loginSection").style.display = "block";
+                window.location.reload();  // Reload to login page
             });
-        });
-
-        // Toggle Between Login and Signup
-        document.getElementById("showSignup").addEventListener("click", function () {
-            document.getElementById("loginSection").classList.add("hidden");
-            document.getElementById("signupSection").classList.remove("hidden");
-        });
-
-        document.getElementById("showLogin").addEventListener("click", function () {
-            document.getElementById("signupSection").classList.add("hidden");
-            document.getElementById("loginSection").classList.remove("hidden");
         });
     </script>
 
