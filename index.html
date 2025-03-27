@@ -8,22 +8,28 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         body { font-family: 'Arial', sans-serif; background: #f7f7f7; text-align: center; padding: 20px; }
-        .dashboard-container { max-width: 500px; margin: auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .dashboard-container { max-width: 500px; margin: auto; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); padding: 20px; }
         .weight-display { font-size: 3em; font-weight: bold; color: #007bff; margin: 20px 0; }
-        .alert { display: none; padding: 10px; background: red; color: white; font-weight: bold; border-radius: 5px; }
-        .meter-container { width: 100%; height: 30px; background: #e0e0e0; border-radius: 15px; position: relative; overflow: hidden; }
+        .alert { display: none; padding: 10px; color: white; font-weight: bold; border-radius: 5px; margin-bottom: 10px; }
+        .alert.low { background: red; }
+        .alert.sufficient { background: green; }
+        .meter-container { width: 100%; height: 30px; background: #e0e0e0; border-radius: 15px; position: relative; overflow: hidden; margin-bottom: 15px; }
         .meter-fill { height: 100%; width: 0%; background: #007bff; border-radius: 15px; transition: width 0.5s; }
+        .btn { padding: 10px 15px; background: #007bff; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        .btn:hover { background: #0056b3; }
         @media (max-width: 600px) { .dashboard-container { width: 90%; } }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
         <h2>Storage Bin Weight</h2>
-        <div class="alert" id="alert">⚠️ Overweight! Reduce Load!</div>
+        <div class="alert low" id="lowAlert">⚠️ Low Stock! Refill Needed!</div>
+        <div class="alert sufficient" id="sufficientAlert">✅ Stock is Sufficient</div>
         <div class="weight-display" id="weight">Loading...</div>
         <div class="meter-container">
             <div class="meter-fill" id="meter"></div>
         </div>
+        <button class="btn" onclick="tareScale()">Reset/Tare Scale</button>
     </div>
     <script>
         var firebaseConfig = {
@@ -36,12 +42,26 @@
         
         function getWeight() {
             firebase.database().ref("/sensor/weight").on("value", snapshot => {
-                let weight = snapshot.val();
-                document.getElementById("weight").innerText = weight + " g";
-                document.getElementById("meter").style.width = Math.min(weight / 5000 * 100, 100) + "%";
-                document.getElementById("alert").style.display = weight > 4000 ? "block" : "none";
+                let weight = snapshot.val() / 1000; // Convert grams to kg
+                let displayWeight = weight.toFixed(2); // Show only 2 decimal places
+                document.getElementById("weight").innerText = displayWeight + " kg";
+                
+                let meterWidth = Math.min(weight / 20 * 100, 100); // Limit meter to 20kg max
+                document.getElementById("meter").style.width = meterWidth + "%";
+
+                document.getElementById("lowAlert").style.display = weight <= 1 ? "block" : "none"; // Low stock alert
+                document.getElementById("sufficientAlert").style.display = weight >= 4 ? "block" : "none"; // Sufficient stock alert
             });
         }
+
+        function tareScale() {
+            firebase.database().ref("/sensor/tare").set(true).then(() => {
+                alert("Scale reset command sent!");
+            }).catch(error => {
+                alert("Error resetting scale: " + error.message);
+            });
+        }
+
         getWeight();
     </script>
 </body>
