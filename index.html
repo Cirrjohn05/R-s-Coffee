@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>R’s Coffee - Inventory Monitor</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <!-- Styles -->
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      background: #945b19;
+      color: #4e342e;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .dashboard-container {
+      max-width: 550px;
+      margin: auto;
+      background: #fff8f0;
+      border-radius: 15px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+      padding: 30px;
+    }
+
+    h2 {
+      font-family: 'Georgia', serif;
+      font-size: 28px;
+      margin-bottom: 15px;
+    }
+
+    .weight-display {
+      font-size: 3em;
+      font-weight: bold;
+      color: #6d4c41;
+      margin: 20px 0;
+    }
+
+    .alert {
+      display: none;
+      padding: 12px;
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .alert.low {
+      background: #d84315;
+    }
+
+    .alert.sufficient {
+      background: #3e2723;
+    }
+
+    .meter-container {
+      width: 100%;
+      height: 30px;
+      background: #d7ccc8;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      background: #8d6e63;
+      border-radius: 20px;
+      transition: width 0.5s ease;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      background: #6d4c41;
+      color: #fff8f0;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn:hover {
+      background: #5d4037;
+    }
+
+    @media (max-width: 600px) {
+      .dashboard-container {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <h2>R’s Coffee Storage</h2>
+
+    <div class="alert low" id="lowAlert">⚠️ Low Stock! Please Refill</div>
+    <div class="alert sufficient" id="sufficientAlert">☕ Stock is Sufficient</div>
+
+    <div class="weight-display" id="weight">Loading...</div>
+
+    <div class="meter-container">
+      <div class="meter-fill" id="meter"></div>
+    </div>
+
+    <button class="btn" onclick="tareScale()">Reset / Tare Scale</button>
+  </div>
+
+  <script>
+    // Firebase configuration
+    var firebaseConfig = {
+      apiKey: "AIzaSyActYOn0E0NquJzJE0u8XU4czOFq3k6bBY",
+      authDomain: "r-s-coffee-8f31a.firebaseapp.com",
+      databaseURL: "https://r-s-coffee-8f31a-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "r-s-coffee-8f31a"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Fetch real-time weight data
+    function getWeight() {
+      firebase.database().ref("/sensor/weight").on("value", snapshot => {
+        let weight = snapshot.val() / 1000;
+        weight = Math.max(0, weight);
+        document.getElementById("weight").innerText = weight.toFixed(2) + " kg";
+
+        let meterWidth = Math.min((weight / 20) * 100, 100);
+        document.getElementById("meter").style.width = meterWidth + "%";
+
+        document.getElementById("lowAlert").style.display = weight <= 1 ? "block" : "none";
+        document.getElementById("sufficientAlert").style.display = weight > 1 ? "block" : "none";
+      });
+    }
+
+    // Tare/Reset Scale via Firebase
+    function tareScale() {
+      firebase.database().ref("/sensor/tare").set(true)
+        .then(() => alert("Scale reset command sent!"))
+        .catch(error => alert("Error resetting scale: " + error.message));
+    }
+
+    // Initialize data fetching
+    getWeight();
+  </script>
+</body>
+</html>
